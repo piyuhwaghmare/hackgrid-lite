@@ -1,0 +1,41 @@
+services:
+  backend:
+    build: ./backend
+    container_name: hackgrid-backend
+    ports:
+      - "5000:5000"
+    networks:
+      - hackathon-network
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    depends_on:
+      - backend
+    networks:
+      - hackathon-network
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - hackathon-network
+
+networks:
+  hackathon-network:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:
